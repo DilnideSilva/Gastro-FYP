@@ -1,0 +1,115 @@
+# Vertex AI Configuration for GastroSphere ML Models
+
+# Project Configuration
+project_id: "your-google-cloud-project-id"
+location: "us-central1"
+staging_bucket: "gs://your-staging-bucket"
+
+# Training Configuration
+training:
+  display_name: "gastrosphere-symptom-classifier"
+  
+  # Container Configuration
+  container:
+    image_uri: "gcr.io/cloud-aiplatform/training/tf-cpu.2-8:latest"
+    command: ["python", "train.py"]
+    args: []
+    
+  # Machine Configuration
+  machine_spec:
+    machine_type: "n1-standard-4"
+    accelerator_type: "NVIDIA_TESLA_K80"
+    accelerator_count: 1
+    
+  # Input/Output Configuration
+  input_data_config:
+    training_data_path: "gs://your-data-bucket/training_data/"
+    validation_data_path: "gs://your-data-bucket/validation_data/"
+    
+  output_data_config:
+    model_output_path: "gs://your-model-bucket/trained_models/"
+    
+  # Hyperparameters
+  hyperparameters:
+    learning_rate: 0.001
+    batch_size: 32
+    epochs: 100
+    dropout_rate: 0.2
+    
+# Model Deployment Configuration
+deployment:
+  endpoint_display_name: "gastrosphere-endpoint"
+  
+  # Model Configuration
+  model:
+    display_name: "gastrosphere-symptom-model"
+    description: "AI model for gastritis symptom classification and recommendation"
+    
+  # Serving Configuration
+  deployed_model:
+    display_name: "gastrosphere-deployed-model"
+    machine_spec:
+      machine_type: "n1-standard-2"
+    min_replica_count: 1
+    max_replica_count: 3
+    
+  # Traffic Configuration
+  traffic_allocation:
+    "0": 100  # 100% traffic to version 0
+    
+# Batch Prediction Configuration
+batch_prediction:
+  job_display_name: "gastrosphere-batch-prediction"
+  
+  # Input Configuration
+  input_config:
+    instances_format: "jsonl"
+    gcs_source:
+      uris: ["gs://your-data-bucket/batch_input/"]
+      
+  # Output Configuration
+  output_config:
+    predictions_format: "jsonl"
+    gcs_destination:
+      output_uri_prefix: "gs://your-output-bucket/batch_predictions/"
+      
+# Monitoring Configuration
+monitoring:
+  # Model Monitoring
+  model_monitoring:
+    enabled: true
+    notification_channels: []
+    
+  # Drift Detection
+  drift_detection:
+    enabled: true
+    threshold: 0.1
+    
+  # Prediction Monitoring
+  prediction_monitoring:
+    enabled: true
+    sampling_rate: 0.1
+    
+# Auto ML Configuration (Alternative)
+automl:
+  dataset_display_name: "gastrosphere-dataset"
+  
+  # Training Configuration
+  training_config:
+    budget_milli_node_hours: 8000  # 8 hours
+    
+  # Model Configuration
+  model_config:
+    display_name: "gastrosphere-automl-model"
+    
+# Pipeline Configuration
+pipeline:
+  template_path: "pipeline_template.yaml"
+  pipeline_root: "gs://your-pipeline-bucket/pipeline_root"
+  
+  # Parameters
+  parameters:
+    project_id: "your-google-cloud-project-id"
+    region: "us-central1"
+    training_data_path: "gs://your-data-bucket/training/"
+    model_output_path: "gs://your-model-bucket/output/"

@@ -47,11 +47,13 @@ Managing gastritis is challenging due to:
 - Activity reminders
 
 ### 🛠️ Technology Stack
-- **AI/ML**: Machine learning algorithms for symptom analysis and personalization
-- **Frontend**: Responsive web development (HTML, CSS, JavaScript)
-- **Backend**: Server-side processing and API development
-- **Database**: Data storage and management
-- **Analytics**: Data-driven insights and reporting
+- **Frontend**: Bootstrap 5 for responsive UI components (HTML, CSS, JavaScript)
+- **Backend**: 
+  - Python (Flask/FastAPI) for AI/ML services and data processing
+  - Spring Boot (Java) for main application services and REST APIs
+- **Database**: Google Firestore (NoSQL document database)
+- **AI/ML**: Google Vertex AI for machine learning model development and deployment
+- **Analytics**: Data-driven insights and reporting with Google Cloud Analytics
 
 ### 📊 Dataset
 The project utilizes a comprehensive dataset (`gastrosphere_100k_enhanced_dataset.csv`) containing 100,000 enhanced records for training AI models and generating personalized recommendations.

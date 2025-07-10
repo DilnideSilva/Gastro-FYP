@@ -1,10 +1,19 @@
 # GastroSphere - Getting Started Guide
 
 ## Prerequisites
-- Node.js (v14 or higher)
-- Python (v3.8 or higher)
+- Java 17+ (for Spring Boot)
+- Python 3.8+ (for AI/ML services)
+- Maven 3.6+ (for Spring Boot build)
+- Google Cloud SDK
 - Git
 - A modern web browser
+
+## Technology Stack
+- **Frontend**: Bootstrap 5, HTML5, CSS3, JavaScript
+- **Backend**: Spring Boot (Java) + Python (Flask/FastAPI)
+- **Database**: Google Firestore
+- **AI/ML**: Google Vertex AI
+- **Cloud**: Google Cloud Platform
 
 ## Initial Setup
 
@@ -14,65 +23,116 @@ git clone <your-repository-url>
 cd Gastro-FYP
 ```
 
-### 2. Install Dependencies
+### 2. Google Cloud Setup
 
-#### Frontend/Backend Dependencies
+#### Create a Google Cloud Project
 ```bash
-npm install
+gcloud projects create your-project-id
+gcloud config set project your-project-id
 ```
 
-#### AI/ML Dependencies
+#### Enable Required APIs
 ```bash
+gcloud services enable aiplatform.googleapis.com
+gcloud services enable firestore.googleapis.com
+gcloud services enable storage.googleapis.com
+```
+
+#### Create Service Account
+```bash
+gcloud iam service-accounts create gastrosphere-service
+gcloud projects add-iam-policy-binding your-project-id \
+    --member="serviceAccount:gastrosphere-service@your-project-id.iam.gserviceaccount.com" \
+    --role="roles/aiplatform.user"
+gcloud projects add-iam-policy-binding your-project-id \
+    --member="serviceAccount:gastrosphere-service@your-project-id.iam.gserviceaccount.com" \
+    --role="roles/datastore.user"
+```
+
+#### Download Service Account Key
+```bash
+gcloud iam service-accounts keys create service-account-key.json \
+    --iam-account=gastrosphere-service@your-project-id.iam.gserviceaccount.com
+```
+
+### 3. Install Dependencies
+
+#### Python Service Dependencies
+```bash
+cd backend/python-service
 pip install -r requirements.txt
 ```
 
-### 3. Environment Configuration
-Create a `.env` file in the root directory:
-```
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=27017
-DB_NAME=gastrosphere
-
-# AI Model Configuration
-AI_MODEL_PATH=./models/trained_models/
-OPENAI_API_KEY=your_openai_api_key
-
-# Application Configuration
-PORT=3000
-NODE_ENV=development
-JWT_SECRET=your_jwt_secret_key
-
-# Email Configuration
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
-```
-
-### 4. Database Setup
+#### Spring Boot Service Dependencies
 ```bash
-# Install MongoDB if not already installed
-# Start MongoDB service
-mongod
-
-# Create database and collections (run in MongoDB shell)
-use gastrosphere
+cd backend/spring-boot-service
+mvn clean install
 ```
 
-### 5. Data Preprocessing
+### 4. Environment Configuration
+
+#### Python Service (.env file)
 ```bash
-# Run data preprocessing script
-python scripts/data-preprocessing.py
+cd backend/python-service
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-### 6. Start Development Server
+#### Spring Boot Service
 ```bash
-# Start backend server
-npm run dev
+cd backend/spring-boot-service/src/main/resources
+# Edit application.properties with your configuration
+# Place firebase-service-account.json in resources folder
+```
 
-# In another terminal, start frontend (if separate)
-# cd frontend && npm start
+### 5. Database Setup (Firestore)
+
+#### Initialize Firestore
+```bash
+gcloud firestore databases create --region=us-central1
+```
+
+#### Create Collections
+- Users collection
+- Symptoms collection
+- Meals collection
+- Notifications collection
+
+### 6. Vertex AI Setup
+
+#### Create Dataset
+```bash
+gcloud ai datasets create \
+    --display-name="gastrosphere-dataset" \
+    --metadata-schema-uri="gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml"
+```
+
+#### Upload Training Data
+```bash
+gsutil cp data/gastrosphere_100k_enhanced_dataset.csv gs://your-data-bucket/
+```
+
+### 7. Start Development Servers
+
+#### Frontend (Bootstrap)
+```bash
+cd frontend
+# Simply open index.html in browser or use live server
+python -m http.server 3000  # Simple HTTP server
+```
+
+#### Python Service
+```bash
+cd backend/python-service
+python app.py
+# Service runs on http://localhost:5000
+```
+
+#### Spring Boot Service
+```bash
+cd backend/spring-boot-service
+mvn spring-boot:run
+# Service runs on http://localhost:8080
 ```
 
 ## Development Workflow
